@@ -13,6 +13,10 @@ migrate = Migrate()
 class Hero(db.Model, SerializerMixin):
     __tablename__ = 'heroes'
 
+    serialize_rules = ('-hero_powers.hero', '-powers.heroes')
+
+
+
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
     alter_ego = db.Column(db.String, nullable=False)
@@ -20,11 +24,13 @@ class Hero(db.Model, SerializerMixin):
     hero_powers = db.relationship('HeroPower', back_populates='hero', cascade='all, delete-orphan')
     powers = db.relationship('Power', secondary='hero_powers', back_populates='heroes')
 
-    serialize_rules = ('-hero_powers.hero', '-powers.heroes')
+   
 
 
 class Power(db.Model, SerializerMixin):
     __tablename__ = 'powers'
+
+    serialize_rules = ('-heroes.powers',)
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
@@ -32,7 +38,7 @@ class Power(db.Model, SerializerMixin):
 
     heroes = db.relationship('Hero', secondary='hero_powers', back_populates='powers')
 
-    serialize_rules = ('-heroes.powers',)
+    
 
     @validates('description')
     def validate_description(self, key, value):
@@ -43,6 +49,8 @@ class Power(db.Model, SerializerMixin):
 
 class HeroPower(db.Model, SerializerMixin):
     __tablename__ = 'hero_powers'
+
+    serialize_rules = ('-hero.hero_powers', '-power.heroes')
 
     id = db.Column(db.Integer, primary_key=True)
     strength = db.Column(db.String, nullable=False)
